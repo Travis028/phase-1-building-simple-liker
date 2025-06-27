@@ -14,20 +14,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // Loop through each heart
   hearts.forEach(heart => {
     heart.addEventListener('click', () => {
+      // Toggle heart state while waiting for server response
+      const isLiked = heart.textContent === FULL_HEART;
+      heart.textContent = isLiked ? EMPTY_HEART : FULL_HEART;
+      heart.classList.toggle('activated-heart', !isLiked);
+
       mimicServerCall()
         .then(() => {
-          if (heart.textContent === EMPTY_HEART) {
-            heart.textContent = FULL_HEART;
-            heart.classList.add('activated-heart');
-          } else {
-            heart.textContent = EMPTY_HEART;
-            heart.classList.remove('activated-heart');
-          }
+          // If server succeeds, keep the current state
         })
         .catch(error => {
+          // If server fails, revert the heart state
+          heart.textContent = isLiked ? FULL_HEART : EMPTY_HEART;
+          heart.classList.toggle('activated-heart', isLiked);
+          
+          // Show error modal
           modal.classList.remove('hidden');
           modalMessage.textContent = error;
 
+          // Hide modal after 3 seconds
           setTimeout(() => {
             modal.classList.add('hidden');
           }, 3000);
